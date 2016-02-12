@@ -1,26 +1,32 @@
 package messenger.models;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
+import javax.xml.bind.annotation.XmlTransient;
 
 public class Message
 {
 	private long id;
 	private String message;
 	private Date createdOn;
-	private String createdBy;
+	private String author;
+	private List<Link> links = new ArrayList<>();
+	private Map<Long, Comment> comments = new HashMap<>();
 
 	public Message()
 	{
 	}
 
-	public Message(long id, String message/* , Date createdOn */, String createdBy)
+	public Message(long id, String message, Date createdOn, String createdBy)
 	{
 		this.id = id;
 		this.message = message;
-		this.createdBy = createdBy;
+		this.author = createdBy;
+		this.createdOn = createdOn;
 	}
 
 	public long getId()
@@ -53,14 +59,67 @@ public class Message
 		this.createdOn = createdOn;
 	}
 
-	public String getCreatedBy()
+	public String getAuthor()
 	{
-		return createdBy;
+		return author;
 	}
 
-	public void setCreatedBy(String createdBy)
+	public void setAuthor(String author)
 	{
-		this.createdBy = createdBy;
+		this.author = author;
 	}
 
+	public List<Link> getLinks()
+	{
+		return links;
+	}
+
+	public void setLinks(List<Link> links)
+	{
+		this.links = links;
+	}
+
+	@XmlTransient
+	public Map<Long, Comment> getComments()
+	{
+		return comments;
+	}
+
+	public void setComments(Map<Long, Comment> comments)
+	{
+		this.comments = comments;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Message [id=" + id + ", message=" + message + ", createdOn="
+				+ createdOn + ", createdBy=" + author + "]";
+	}
+
+	public void addLink(String rel, String url)
+	{
+		Link link = new Link();
+		link.setRel(rel);
+		link.setUrl(url);
+		links.add(link);
+	}
+
+	public Comment addComment(Comment comment)
+	{
+		long commentId = comment.getId();
+		return comments.put(commentId, comment);
+	}
+
+	public Comment removeComment(long commentId)
+	{
+		return comments.remove(commentId);
+	}
+
+	public Comment updateComment(Comment comment)
+	{
+		long commentId = comment.getId();
+		if (!comments.containsKey(commentId)) return null;
+		return comments.remove(commentId);
+	}
 }
